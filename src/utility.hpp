@@ -20,6 +20,12 @@ inline double degrees_to_radians(double degrees) {
 }
 
 
+inline bool isEqual(double a, double b) {
+    const double EPS = 1;
+    return std::abs(a - b) < EPS; 
+}
+
+
 template <typename T>
 inline T clamp(T x, T min, T max) {
     if (x < min) return min;

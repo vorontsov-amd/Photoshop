@@ -61,7 +61,40 @@ public:
         class_wnd.setTexture(&class_texture);
     }
 
-    void pressButton(const sf::Vector2i& coord) override { mousePressed(coord); }
+
+    virtual void mouseReleased(sf::Vector2i coord) {
+        if (!contains(coord.x, coord.y)) return;
+        
+        unsigned y = coord.y - class_wnd.getPosition().y;
+        unsigned x = coord.x - class_wnd.getPosition().x; 
+
+        class_tool_manager->activeTool()->mouseReleased(class_pixels, class_wnd.getSize().x, class_wnd.getSize().y, x, y);
+
+        class_texture.update((sf::Uint8*)class_pixels, class_wnd.getSize().x, class_wnd.getSize().y, 0, 0);
+        
+        class_wnd.setTexture(&class_texture);
+    }
+
+
+    void pressButton(const sf::Vector2i& coord) override { 
+        if (!contains(coord.x, coord.y)) return;
+        
+        unsigned y = coord.y - class_wnd.getPosition().y;
+        unsigned x = coord.x - class_wnd.getPosition().x; 
+
+        // for (int dx = -1; dx <= 1; ++dx) {
+        //     for (int dy = -1; dy <= 1; ++dy) {
+        //         if (y == 0 && dy < 0) continue;
+        //         class_pixels[clamp((y + dy) * (int)class_wnd.getSize().x + (x + dx), 0U, unsigned(class_wnd.getSize().x * class_wnd.getSize().y - 1))] = 0xff000000;
+        //     }
+        // }
+
+        class_tool_manager->activeTool()->pressButton(class_pixels, class_wnd.getSize().x, class_wnd.getSize().y, x, y);
+
+        class_texture.update((sf::Uint8*)class_pixels, class_wnd.getSize().x, class_wnd.getSize().y, 0, 0);
+        
+        class_wnd.setTexture(&class_texture);    
+    }
 };
 
 

@@ -101,6 +101,33 @@ inline void Pencil::mousePressed(sf::Uint32* texture, unsigned x_resolution, uns
     }
 }
 
+inline void Line::mousePressed(sf::Uint32* texture, unsigned x_resolution, unsigned y_resolution, unsigned x, unsigned y) {
+    P1 = Vector{x, y};
+}
+
+inline void Line::mouseReleased(sf::Uint32* texture, unsigned x_resolution, unsigned y_resolution, unsigned x, unsigned y) {
+    P2 = Vector{x, y};
+
+    int delta_x = (P2.x() > P1.x()) ? 1 : -1; 
+    int delta_y = (P2.y() > P1.y()) ? 1 : -1; 
+
+    for (int dx = -1; dx <= 1; ++dx) {
+        for (int dy = -1; dy <= 1; ++dy) {
+            for (int coord_x = P1.x(); coord_x != P2.x(); coord_x += delta_x) {
+                for (int coord_y = P1.y(); coord_y != P2.y(); coord_y += delta_y) {
+                    if (y == 0 && dy < 0) continue;
+                    if (contains(coord_x, coord_y)) {
+                        texture[clamp((coord_y + dy) * x_resolution + (coord_x + dx),
+                        0U, 
+                        x_resolution * y_resolution - 1)] = class_pallete->color();
+                    }
+                }
+            }
+        }
+    }
+
+}
+
 
 
 class ToolPallete : public WidgetManager, public ToolManager
@@ -119,7 +146,6 @@ private:
         std::dynamic_pointer_cast<TextureButton>(class_active_tool)->setThinkes(true);
         
         auto distance = std::distance(class_widgets.begin(), tool_ptr);
-        std::cout << distance << '\n';
         ToolManager::setActiveTool(distance);
     }
 
@@ -135,13 +161,9 @@ public:
 
         const std::vector<std::string> img_path = {
             "../Textures/pencil.png",
-            "../Textures/dropper.png",
-            "../Textures/watering-can.png",
-            "../Textures/zoom_out.png",
-            "../Textures/zoom.png",
+            //"../Textures/dropper.png",
+            "../Textures/line.png",
         };
-
-
 
         class_backgroud.setSize(
             (class_button_size + class_button_distance), 
@@ -158,9 +180,6 @@ public:
             ));
         }
 
-
-
-
         // WidgetManager::addWidget(make_shared<ColorButton>(
         //     position + Vector{0, num_of_instr * (class_button_size + class_button_distance)},
         //     class_button_size, 
@@ -174,6 +193,7 @@ public:
 
         const auto& color_pallete = std::dynamic_pointer_cast<ColorPallete>(class_widgets.back());
         ToolManager::addTool(make_shared<Pencil>(color_pallete));
+        ToolManager::addTool(make_shared<Line>(color_pallete));
 
         class_candidate_for_active_tool_ptr = class_widgets.begin(); 
         setActiveTool(class_candidate_for_active_tool_ptr);
