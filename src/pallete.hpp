@@ -62,7 +62,7 @@ public:
             ));
         }
 
-        class_candidate_for_active_color  = WidgetManager::arrayOfWidgets().back(); 
+        class_candidate_for_active_color  = WidgetManager::arrayOfWidgets().front(); 
         setActiveColor(class_candidate_for_active_color);
     }
 
@@ -87,7 +87,7 @@ public:
 
     unsigned color() const {
         auto rgb_color = std::dynamic_pointer_cast<ColorButton>(class_active_color)->color();
-        return ((0xff << 24) | (rgb_color.b << 16) | (rgb_color.g << 8) | rgb_color.b);
+        return ((0xff << 24) | (rgb_color.b << 16) | (rgb_color.g << 8) | rgb_color.r);
     }
 };
 
