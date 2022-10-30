@@ -1,7 +1,7 @@
 #pragma once
 #include "button.hpp"
 #include "widgetManager.hpp"
-
+#include "tool.hpp"
 
 
 class ColorPallete : public WidgetManager
@@ -17,7 +17,7 @@ private:
 
     void setActiveColor(const shared_ptr<Widget>& color_ptr) {
         class_active_color = color_ptr;
-        
+
         std::dynamic_pointer_cast<ColorButton>(WidgetManager::arrayOfWidgets().front())->setColor(
             std::dynamic_pointer_cast<ColorButton>(class_active_color)->color()
         );
@@ -84,12 +84,26 @@ public:
             setActiveColor(class_candidate_for_active_color);
         }
     }
+
+    unsigned color() const {
+        auto rgb_color = std::dynamic_pointer_cast<ColorButton>(class_active_color)->color();
+        return ((0xff << 24) | (rgb_color.b << 16) | (rgb_color.g << 8) | rgb_color.b);
+    }
 };
 
 
+inline void Pencil::mousePressed(sf::Uint32* texture, unsigned x_resolution, unsigned y_resolution, unsigned x, unsigned y) {
+    for (int dx = -1; dx <= 1; ++dx) {
+        for (int dy = -1; dy <= 1; ++dy) {
+            if (y == 0 && dy < 0) continue;
+            texture[clamp((y + dy) * x_resolution + (x + dx), 0U, x_resolution * y_resolution - 1)] = class_pallete->color();
+        }
+    }
+}
 
 
-class ToolPallete : public WidgetManager
+
+class ToolPallete : public WidgetManager, public ToolManager
 {
 private:
     unsigned class_button_size = 30;
@@ -98,14 +112,18 @@ private:
     Panel class_backgroud;
 
     shared_ptr<Widget> class_active_tool; 
-    shared_ptr<Widget> class_candidate_for_active_tool;
+    std::vector<shared_ptr<Widget>>::iterator class_candidate_for_active_tool_ptr;
 
-    void setActiveTool(const shared_ptr<Widget>& tool_ptr) {
-        class_active_tool = tool_ptr;
+    void setActiveTool(const std::vector<shared_ptr<Widget>>::iterator& tool_ptr) {
+        class_active_tool = *tool_ptr;
         std::dynamic_pointer_cast<TextureButton>(class_active_tool)->setThinkes(true);
+        
+        auto distance = std::distance(class_widgets.begin(), tool_ptr);
+        std::cout << distance << '\n';
+        ToolManager::setActiveTool(distance);
     }
 
-    void resetActiveTool(const shared_ptr<Widget>& tool_ptr) {
+    void resetActiveTool(const std::vector<shared_ptr<Widget>>::iterator& tool_ptr) {
         std::dynamic_pointer_cast<TextureButton>(class_active_tool)->setThinkes(false);
         setActiveTool(tool_ptr);
     }
@@ -123,6 +141,8 @@ public:
             "../Textures/zoom.png",
         };
 
+
+
         class_backgroud.setSize(
             (class_button_size + class_button_distance), 
             (img_path.size() + 1) * (class_button_size + class_button_distance)
@@ -138,6 +158,9 @@ public:
             ));
         }
 
+
+
+
         // WidgetManager::addWidget(make_shared<ColorButton>(
         //     position + Vector{0, num_of_instr * (class_button_size + class_button_distance)},
         //     class_button_size, 
@@ -149,8 +172,11 @@ public:
             position + Vector{0, num_of_instr * (class_button_size + class_button_distance)}
         ));
 
-        class_candidate_for_active_tool = WidgetManager::arrayOfWidgets().front(); 
-        setActiveTool(class_candidate_for_active_tool);
+        const auto& color_pallete = std::dynamic_pointer_cast<ColorPallete>(class_widgets.back());
+        ToolManager::addTool(make_shared<Pencil>(color_pallete));
+
+        class_candidate_for_active_tool_ptr = class_widgets.begin(); 
+        setActiveTool(class_candidate_for_active_tool_ptr);
     }
 
     void draw(sf::RenderWindow& window) const override {
@@ -162,9 +188,9 @@ public:
 
         class_widgets.back()->mousePressed(position);
 
-        for (const auto& button : class_widgets) {
-            if (button->contains(position.x, position.y)) {
-                class_candidate_for_active_tool = button;
+        for (auto button_ptr = class_widgets.begin(); button_ptr != class_widgets.end(); ++button_ptr) {
+            if ((*button_ptr)->contains(position.x, position.y)) {
+                class_candidate_for_active_tool_ptr = button_ptr;
             }
         }
     }
@@ -173,9 +199,9 @@ public:
         
         class_widgets.back()->mouseReleased(position);
 
-        if (class_candidate_for_active_tool->contains(position)) {
-            if (std::dynamic_pointer_cast<TextureButton>(class_candidate_for_active_tool) != nullptr) {
-                resetActiveTool(class_candidate_for_active_tool);
+        if ((*class_candidate_for_active_tool_ptr)->contains(position)) {
+            if (std::dynamic_pointer_cast<TextureButton>(*class_candidate_for_active_tool_ptr) != nullptr) {
+                resetActiveTool(class_candidate_for_active_tool_ptr);
             }
         }
     }

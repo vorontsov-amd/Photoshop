@@ -16,9 +16,9 @@ int main()
 
     WidgetManager manager;
     manager.addWidget(make_shared<SettingsPanel>(1600));
-    manager.addWidget(make_shared<DrawingWindow>(Vector{100, 100}, 600, 400));
-    manager.addWidget(make_shared<ToolPallete>(Vector{20, 80}));
-
+    auto tool_pallete = make_shared<ToolPallete>(Vector{20, 80});
+    manager.addWidget(tool_pallete);
+    manager.addWidget(make_shared<DrawingWindow>(Vector{100, 100}, 600, 400, tool_pallete));
 
     while (window.isOpen())
     {

@@ -1,6 +1,9 @@
 #include "widget.hpp"
 #include "button.hpp"
 #include "utility.hpp"
+#include "pallete.hpp"
+#include "tool.hpp"
+
 
 class CanvasWindow : public Widget
 {
@@ -9,9 +12,13 @@ private:
     sf::Color class_marker_color = sf::Color::Black;
     sf::Uint32* class_pixels; 
     sf::Texture class_texture;
+
+    shared_ptr<ToolManager> class_tool_manager;
+
 public:
-    CanvasWindow(const Vector& position, unsigned width, unsigned height) : 
-        class_wnd{sf::Vector2f{width, height}} {
+    CanvasWindow(const Vector& position, unsigned width, unsigned height, const shared_ptr<ToolManager>& tool_manager) : 
+        class_wnd{sf::Vector2f{width, height}},
+        class_tool_manager{tool_manager} {
             class_wnd.setPosition(position);
             class_pixels = new sf::Uint32 [width * height] {};
 
@@ -40,12 +47,14 @@ public:
         unsigned y = coord.y - class_wnd.getPosition().y;
         unsigned x = coord.x - class_wnd.getPosition().x; 
 
-        for (int dx = -1; dx <= 1; ++dx) {
-            for (int dy = -1; dy <= 1; ++dy) {
-                if (y == 0 && dy < 0) continue;
-                class_pixels[clamp((y + dy) * (int)class_wnd.getSize().x + (x + dx), 0U, unsigned(class_wnd.getSize().x * class_wnd.getSize().y - 1))] = 0xff000000;
-            }
-        }
+        // for (int dx = -1; dx <= 1; ++dx) {
+        //     for (int dy = -1; dy <= 1; ++dy) {
+        //         if (y == 0 && dy < 0) continue;
+        //         class_pixels[clamp((y + dy) * (int)class_wnd.getSize().x + (x + dx), 0U, unsigned(class_wnd.getSize().x * class_wnd.getSize().y - 1))] = 0xff000000;
+        //     }
+        // }
+
+        class_tool_manager->activeTool()->mousePressed(class_pixels, class_wnd.getSize().x, class_wnd.getSize().y, x, y);
 
         class_texture.update((sf::Uint8*)class_pixels, class_wnd.getSize().x, class_wnd.getSize().y, 0, 0);
         
@@ -68,7 +77,7 @@ private:
     Panel class_panel;
 
 public:
-    DrawingWindow(const Vector& position, unsigned width, unsigned height) :
+    DrawingWindow(const Vector& position, unsigned width, unsigned height, const shared_ptr<ToolManager>& tool_palete) :
         class_panel{position, width, class_panel_size, class_panel_color} {
         WidgetManager::addWidget(make_shared<TextureButton>(
             position + Vector{width - class_panel_size, 0},
@@ -79,7 +88,8 @@ public:
         WidgetManager::addWidget(make_shared<CanvasWindow>(
             position + Vector{0, class_panel_size}, 
             width,
-            height
+            height,
+            tool_palete
         ));
     }
 
