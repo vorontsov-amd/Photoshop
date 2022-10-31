@@ -6,7 +6,7 @@
 #include "button.hpp"
 #include "pallete.hpp"
 #include "settingsPanel.hpp"
-
+#include "objectList.hpp"
 
 int main()
 {   
@@ -16,9 +16,10 @@ int main()
 
     WidgetManager manager;
     manager.addWidget(make_shared<SettingsPanel>(1600));
-    auto tool_pallete = make_shared<ToolPallete>(Vector{20, 80});
+    auto tool_pallete = make_shared<ToolPallete>(Vector{20, 80}, 1600);
     manager.addWidget(tool_pallete);
-    manager.addWidget(make_shared<DrawingWindow>(Vector{100, 100}, 600, 400, tool_pallete));
+    manager.addWidget(make_shared<DrawingWindow>(Vector{100, 100}, 960, 640, tool_pallete));
+    manager.addWidget(make_shared<ObjectList>(Vector{1200, 100}, 350, 640));
 
     while (window.isOpen())
     {

@@ -90,9 +90,22 @@ public:
             class_text.setPosition(position);
     }
 
+    void setTextColor(const sf::Color& color) {
+        class_text.setFillColor(color);
+    }
+
     void draw(sf::RenderWindow& window) const override {
         ColorButton::draw(window);
         window.draw(class_text);
+    }
+
+    void moveText(int dx, int dy) {
+        class_text.setPosition(class_text.getPosition().x + dx, class_text.getPosition().y + dy);
+    }
+
+    void move(int dx, int dy) override {
+        ColorButton::move(dx, dy);
+        moveText(dx, dy);
     }
 };
 

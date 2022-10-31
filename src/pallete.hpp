@@ -18,8 +18,8 @@ private:
     void setActiveColor(const shared_ptr<Widget>& color_ptr) {
         class_active_color = color_ptr;
 
-        std::dynamic_pointer_cast<ColorButton>(WidgetManager::arrayOfWidgets().front())->setColor(
-            std::dynamic_pointer_cast<ColorButton>(class_active_color)->color()
+        std::static_pointer_cast<ColorButton>(WidgetManager::arrayOfWidgets().front())->setColor(
+            std::static_pointer_cast<ColorButton>(class_active_color)->color()
         );
     }
 
@@ -86,7 +86,7 @@ public:
     }
 
     unsigned color() const {
-        auto rgb_color = std::dynamic_pointer_cast<ColorButton>(class_active_color)->color();
+        auto rgb_color = std::static_pointer_cast<ColorButton>(class_active_color)->color();
         return ((0xff << 24) | (rgb_color.b << 16) | (rgb_color.g << 8) | rgb_color.r);
     }
 };
@@ -143,20 +143,20 @@ private:
 
     void setActiveTool(const std::vector<shared_ptr<Widget>>::iterator& tool_ptr) {
         class_active_tool = *tool_ptr;
-        std::dynamic_pointer_cast<TextureButton>(class_active_tool)->setThinkes(true);
+        std::static_pointer_cast<TextureButton>(class_active_tool)->setThinkes(true);
         
         auto distance = std::distance(class_widgets.begin(), tool_ptr);
         ToolManager::setActiveTool(distance);
     }
 
     void resetActiveTool(const std::vector<shared_ptr<Widget>>::iterator& tool_ptr) {
-        std::dynamic_pointer_cast<TextureButton>(class_active_tool)->setThinkes(false);
+        std::static_pointer_cast<TextureButton>(class_active_tool)->setThinkes(false);
         setActiveTool(tool_ptr);
     }
 
 
 public:
-    ToolPallete(const Vector& position) : class_backgroud{position - Vector{class_button_distance / 2,    
+    ToolPallete(const Vector& position, unsigned x_resolution) : class_backgroud{position - Vector{class_button_distance / 2,    
         class_button_distance / 2}, 0, 0, sf::Color{86, 83, 92}} {
 
         const std::vector<std::string> img_path = {
@@ -191,15 +191,16 @@ public:
             position + Vector{0, num_of_instr * (class_button_size + class_button_distance)}
         ));
 
-        const auto& color_pallete = std::dynamic_pointer_cast<ColorPallete>(class_widgets.back());
-        ToolManager::addTool(make_shared<Pencil>(color_pallete));
-        ToolManager::addTool(make_shared<Line>(color_pallete));
+        const auto& color_pallete = std::static_pointer_cast<ColorPallete>(class_widgets.back());
+        ToolManager::addTool(make_shared<Pencil>(color_pallete, x_resolution));
+        ToolManager::addTool(make_shared<Line>(color_pallete, x_resolution));
 
         class_candidate_for_active_tool_ptr = class_widgets.begin(); 
         setActiveTool(class_candidate_for_active_tool_ptr);
     }
 
     void draw(sf::RenderWindow& window) const override {
+        ToolManager::activeTool()->draw(window);
         class_backgroud.draw(window);
         WidgetManager::draw(window);
     }

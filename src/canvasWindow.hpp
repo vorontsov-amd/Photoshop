@@ -112,10 +112,11 @@ private:
 public:
     DrawingWindow(const Vector& position, unsigned width, unsigned height, const shared_ptr<ToolManager>& tool_palete) :
         class_panel{position, width, class_panel_size, class_panel_color} {
+        double koef_button_size = 0.7;
         WidgetManager::addWidget(make_shared<TextureButton>(
-            position + Vector{width - class_panel_size, 0},
-            class_panel_size,
-            class_panel_size,
+            position + Vector{width - class_panel_size * 0.5 * (1 + koef_button_size), class_panel_size * 0.5 * (1 - koef_button_size)},
+            class_panel_size * koef_button_size,
+            class_panel_size * koef_button_size,
             "../Textures/cross.png"
         ));
         WidgetManager::addWidget(make_shared<CanvasWindow>(
