@@ -90,6 +90,9 @@ class Pencil : public Tool
 {
 private:
     shared_ptr<ColorPallete> class_pallete;
+
+    Vector P1, P2;
+
 public:
     Pencil(const shared_ptr<ColorPallete>& pallete, unsigned x_resolution) : Tool{x_resolution}, class_pallete(pallete) {
         class_props_pallet.addWidget(make_shared<TextButton>(class_props_pallet.position(), 100, 25, "active: Pencil", sf::Color{0,0,0,0}));
@@ -97,10 +100,21 @@ public:
 
     void mousePressed(sf::Uint32* texture, unsigned x_resolution, unsigned y_resolution, unsigned x, unsigned y) override;
 
-    void mouseReleased(sf::Uint32* texture, unsigned x_resolution, unsigned y_resolution, unsigned x, unsigned y) override {}
+    void mouseReleased(sf::Uint32* texture, unsigned x_resolution, unsigned y_resolution, unsigned x, unsigned y) override;
 
-    void pressButton(sf::Uint32* texture, unsigned x_resolution, unsigned y_resolution, unsigned x, unsigned y) override {
-        mousePressed(texture, x_resolution, y_resolution, x, y);
+    void pressButton(sf::Uint32* texture, unsigned x_resolution, unsigned y_resolution, unsigned x, unsigned y) override;
+
+    bool contains(int x, int y) const {
+        double k = (P2.y() - P1.y()) / (P2.x() - P1.x());
+        double b = P1.y() - k * P1.x();
+        
+        if (std::abs(k) >= 1) {
+            k = 1 / k;
+            b = -b;
+            return isEqual(x, k * y + b);
+        }
+        
+        return isEqual(y, k * x + b);
     }
 };
 
@@ -125,7 +139,14 @@ public:
     bool contains(int x, int y) const {
         double k = (P2.y() - P1.y()) / (P2.x() - P1.x());
         double b = P1.y() - k * P1.x();
-        return isEqual(y, k * x + b);
+
+        //if (std::abs(k) >= 1) {
+            k = 1 / k;
+            b = -b;
+            return isEqual(x, k * y + b);
+        //}
+
+        //return isEqual(y, k * x + b);
     }
 };
 

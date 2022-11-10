@@ -92,14 +92,68 @@ public:
 };
 
 
+
 inline void Pencil::mousePressed(sf::Uint32* texture, unsigned x_resolution, unsigned y_resolution, unsigned x, unsigned y) {
+    P1 = Vector{x, y};
+}
+
+inline void Pencil::pressButton(sf::Uint32* texture, unsigned x_resolution, unsigned y_resolution, unsigned x, unsigned y) {
+    P2 = Vector{x, y};
+
+    if (P1 == P2) {
+        texture[clamp(y * x_resolution + x, 0U, x_resolution * y_resolution - 1)] = class_pallete->color();
+        return;
+    }
+
+
+    int delta_x = (P2.x() > P1.x()) ? 1 : -1; 
+    int delta_y = (P2.y() > P1.y()) ? 1 : -1; 
+
+
+
     for (int dx = -1; dx <= 1; ++dx) {
         for (int dy = -1; dy <= 1; ++dy) {
-            if (y == 0 && dy < 0) continue;
+            
             texture[clamp((y + dy) * x_resolution + (x + dx), 0U, x_resolution * y_resolution - 1)] = class_pallete->color();
+
+            for (int coord_x = P1.x(); coord_x != P2.x(); coord_x += delta_x) {
+                for (int coord_y = P1.y(); coord_y != P2.y(); coord_y += delta_y) {
+                    if (y == 0 && dy < 0) continue;
+                    
+                    if (contains(coord_x, coord_y)) {
+                        texture[clamp((coord_y + dy) * x_resolution + (coord_x + dx),
+                        0U, 
+                        x_resolution * y_resolution - 1)] = class_pallete->color();
+                    }
+                }
+            }
         }
     }
+
+    P1 = P2;
+
 }
+
+
+inline void Pencil::mouseReleased(sf::Uint32* texture, unsigned x_resolution, unsigned y_resolution, unsigned x, unsigned y) {
+    P2 = Vector{x, y};
+
+    if (P1 == P2) {
+        texture[clamp(y * x_resolution + x, 0U, x_resolution * y_resolution - 1)] = class_pallete->color();
+    }
+
+}
+
+
+
+// inline void Pencil::mousePressed(sf::Uint32* texture, unsigned x_resolution, unsigned y_resolution, unsigned x, unsigned y) { 
+//     for (int dx = -1; dx <= 1; ++dx) {
+//         for (int dy = -1; dy <= 1; ++dy) {
+//             if (y == 0 && dy < 0) continue;
+//             texture[clamp((y + dy) * x_resolution + (x + dx), 0U, x_resolution * y_resolution - 1)] = class_pallete->color();
+//         }
+//     }
+// }
 
 inline void Line::mousePressed(sf::Uint32* texture, unsigned x_resolution, unsigned y_resolution, unsigned x, unsigned y) {
     P1 = Vector{x, y};

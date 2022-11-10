@@ -24,7 +24,7 @@ public:
         window.draw(class_button);
     }
 
-    virtual bool contains(unsigned x, unsigned y) const final override {
+    virtual bool contains(unsigned x, unsigned y) const final override { 
         return class_button.getGlobalBounds().contains(x, y);
     }
 
@@ -72,6 +72,44 @@ public:
     void setColor(const sf::Color& color) { class_button.setFillColor(color); } 
 
 };
+
+
+class MovePanel : public ColorButton
+{
+private:
+    WidgetManager* class_parrent_ptr;
+
+    bool class_mouse_fixation = false;
+
+    sf::Vector2i class_last_position;
+    sf::Vector2i class_delta;
+public:
+    MovePanel(const Vector& position, unsigned width, unsigned height, const sf::Color& color, WidgetManager* parrent_ptr) :
+        ColorButton{position, width, height, color}, class_parrent_ptr{parrent_ptr}
+        {}
+
+    virtual void mousePressed(sf::Vector2i position) override {
+        if (contains(position.x, position.y)) {
+            class_last_position = position;
+            class_mouse_fixation = true;
+            return;
+        }      
+    }
+
+    virtual void mouseReleased(sf::Vector2i position) override {
+        class_mouse_fixation = false;
+    }
+
+    virtual void pressButton(const sf::Vector2i& position) override {
+        if (class_mouse_fixation) {
+            class_delta = position - class_last_position;
+            class_last_position = position;
+            class_parrent_ptr->move(class_delta.x, class_delta.y);
+            return;
+        }  
+    } 
+};
+
 
 
 class TextButton : public ColorButton 

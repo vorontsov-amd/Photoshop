@@ -107,6 +107,12 @@ inline vec3 operator/(vec3 v, double t) {
     return (1/t) * v;
 }
 
+inline bool operator==(const vec3& l, const vec3& r) {
+    return l.x() == r.x() and
+        l.y() == r.y() and
+        l.z() == r.z();
+}
+
 inline double dot(const vec3 &u, const vec3 &v) {
     return u.e[0] * v.e[0]
          + u.e[1] * v.e[1]
