@@ -4,7 +4,6 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 
-
 class Button : public Widget
 {
 protected:
@@ -26,6 +25,19 @@ public:
 
     virtual bool contains(unsigned x, unsigned y) const final override { 
         return class_button.getGlobalBounds().contains(x, y);
+    }
+
+    virtual bool mousePressed(sf::Vector2i position) override {\
+        if (contains(position.x, position.y)) {
+            class_is_pressed = true;
+            return true;
+            puts("button pressed");
+        }      
+        return false;
+    }
+
+    virtual void mouseReleased(sf::Vector2i position) override {
+        class_is_pressed = false;
     }
 
     virtual void pressButton(const sf::Vector2i& coord) override {
@@ -78,9 +90,6 @@ class MovePanel : public ColorButton
 {
 private:
     WidgetManager* class_parrent_ptr;
-
-    bool class_mouse_fixation = false;
-
     sf::Vector2i class_last_position;
     sf::Vector2i class_delta;
 public:
@@ -88,20 +97,17 @@ public:
         ColorButton{position, width, height, color}, class_parrent_ptr{parrent_ptr}
         {}
 
-    virtual void mousePressed(sf::Vector2i position) override {
+    virtual bool mousePressed(sf::Vector2i position) override {
         if (contains(position.x, position.y)) {
             class_last_position = position;
-            class_mouse_fixation = true;
-            return;
+            class_is_pressed = true;
+            return true;
         }      
-    }
-
-    virtual void mouseReleased(sf::Vector2i position) override {
-        class_mouse_fixation = false;
+        return false;
     }
 
     virtual void pressButton(const sf::Vector2i& position) override {
-        if (class_mouse_fixation) {
+        if (class_is_pressed) {
             class_delta = position - class_last_position;
             class_last_position = position;
             class_parrent_ptr->move(class_delta.x, class_delta.y);
@@ -145,6 +151,49 @@ public:
         ColorButton::move(dx, dy);
         moveText(dx, dy);
     }
+};
+
+
+class PressedButton : public TextButton
+{
+protected:
+    WidgetManager* class_widget_manager_ptr;
+public: 
+    PressedButton(
+        const Vector& position, 
+        unsigned width, 
+        unsigned height, 
+        const std::string& str, 
+        const sf::Color& background_color, 
+        WidgetManager* widget_manager_ptr
+        ) :
+        TextButton{position, width, height, str, background_color},
+        class_widget_manager_ptr{widget_manager_ptr} 
+        {}
+};
+
+
+class ObjectCreater;
+
+
+class CreateObjButton : public PressedButton
+{
+public:
+    CreateObjButton(
+        const Vector& position, 
+        unsigned width, 
+        unsigned height, 
+        const std::string& str, 
+        const sf::Color& background_color, 
+        WidgetManager* widget_manager_ptr
+        ) :
+        PressedButton{position, width, height, str, background_color, widget_manager_ptr}
+        {
+            setTextColor(sf::Color::White);
+            moveText(120, 0);    
+        }
+
+    virtual void mouseReleased(sf::Vector2i position) override;
 };
 
 

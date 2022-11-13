@@ -108,6 +108,7 @@ public:
         double k = (P2.y() - P1.y()) / (P2.x() - P1.x());
         double b = P1.y() - k * P1.x();
         
+        //fix
         if (std::abs(k) >= 1) {
             k = 1 / k;
             b = -b;
@@ -140,13 +141,14 @@ public:
         double k = (P2.y() - P1.y()) / (P2.x() - P1.x());
         double b = P1.y() - k * P1.x();
 
-        //if (std::abs(k) >= 1) {
-            k = 1 / k;
-            b = -b;
-            return isEqual(x, k * y + b);
-        //}
+        //fix
+        // if (std::abs(k) >= 1) {
+        //     k = 1 / k;
+        //     b = -b;
+        //     return isEqual(x, k * y + b);
+        // }
 
-        //return isEqual(y, k * x + b);
+        return isEqual(y, k * x + b);
     }
 };
 

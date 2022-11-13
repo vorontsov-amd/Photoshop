@@ -11,7 +11,7 @@ public:
     virtual bool contains(unsigned x, unsigned y) const = 0;
     virtual bool contains(const sf::Vector2i& position) const final { return contains(position.x, position.y); }
     virtual void pressButton(const sf::Vector2i& coord) {} 
-    virtual void mousePressed(sf::Vector2i position) {}
+    virtual bool mousePressed(sf::Vector2i position) {}
     virtual void mouseReleased(sf::Vector2i position) {}
 
 };

@@ -71,12 +71,14 @@ public:
         WidgetManager::draw(window);
     }
 
-    void mousePressed(sf::Vector2i position) override {
+    bool mousePressed(sf::Vector2i position) override {
         for (const auto& button : class_widgets) {
             if (button->contains(position.x, position.y)) {
                 class_candidate_for_active_color = button;
+                return true;
             }
         }
+        return false;
     }
 
     void mouseReleased(sf::Vector2i position) override {
@@ -116,16 +118,14 @@ inline void Pencil::pressButton(sf::Uint32* texture, unsigned x_resolution, unsi
             
             texture[clamp((y + dy) * x_resolution + (x + dx), 0U, x_resolution * y_resolution - 1)] = class_pallete->color();
 
-            for (int coord_x = P1.x(); coord_x != P2.x(); coord_x += delta_x) {
-                for (int coord_y = P1.y(); coord_y != P2.y(); coord_y += delta_y) {
-                    if (y == 0 && dy < 0) continue;
-                    
-                    if (contains(coord_x, coord_y)) {
-                        texture[clamp((coord_y + dy) * x_resolution + (coord_x + dx),
-                        0U, 
-                        x_resolution * y_resolution - 1)] = class_pallete->color();
-                    }
-                }
+            int coord_x = 0, coord_y = 0;
+            for (double t = 0; t <= 1; t += 0.001) {
+                coord_x = P1.x() + (P2.x() - P1.x()) * t;
+                coord_y = P1.y() + (P2.y() - P1.y()) * t;
+                if (y == 0 && dy < 0) continue;
+                    texture[clamp((coord_y + dy) * x_resolution + (coord_x + dx),
+                    0U, 
+                    x_resolution * y_resolution - 1)] = class_pallete->color();
             }
         }
     }
@@ -167,16 +167,25 @@ inline void Line::mouseReleased(sf::Uint32* texture, unsigned x_resolution, unsi
 
     for (int dx = -1; dx <= 1; ++dx) {
         for (int dy = -1; dy <= 1; ++dy) {
-            for (int coord_x = P1.x(); coord_x != P2.x(); coord_x += delta_x) {
-                for (int coord_y = P1.y(); coord_y != P2.y(); coord_y += delta_y) {
-                    if (y == 0 && dy < 0) continue;
-                    if (contains(coord_x, coord_y)) {
-                        texture[clamp((coord_y + dy) * x_resolution + (coord_x + dx),
-                        0U, 
-                        x_resolution * y_resolution - 1)] = class_pallete->color();
-                    }
-                }
+            int coord_x = 0, coord_y = 0;
+            for (double t = 0; t <= 1; t += 0.001) {
+                coord_x = P1.x() + (P2.x() - P1.x()) * t;
+                coord_y = P1.y() + (P2.y() - P1.y()) * t;
+                if (coord_y == 0 && dy < 0) continue;
+                    texture[clamp((coord_y + dy) * x_resolution + (coord_x + dx),
+                    0U, 
+                    x_resolution * y_resolution - 1)] = class_pallete->color();
             }
+            // for (int coord_x = P1.x(); coord_x != P2.x(); coord_x += delta_x) {
+            //     for (int coord_y = P1.y(); coord_y != P2.y(); coord_y += delta_y) {
+            //         if (y == 0 && dy < 0) continue;
+            //         if (contains(coord_x, coord_y)) {
+            //             texture[clamp((coord_y + dy) * x_resolution + (coord_x + dx),
+            //             0U, 
+            //             x_resolution * y_resolution - 1)] = class_pallete->color();
+            //         }
+            //     }
+            // }
         }
     }
 
@@ -193,9 +202,9 @@ private:
     Panel class_backgroud;
 
     shared_ptr<Widget> class_active_tool; 
-    std::vector<shared_ptr<Widget>>::iterator class_candidate_for_active_tool_ptr;
+    std::list<shared_ptr<Widget>>::iterator class_candidate_for_active_tool_ptr;
 
-    void setActiveTool(const std::vector<shared_ptr<Widget>>::iterator& tool_ptr) {
+    void setActiveTool(const std::list<shared_ptr<Widget>>::iterator& tool_ptr) {
         class_active_tool = *tool_ptr;
         std::static_pointer_cast<TextureButton>(class_active_tool)->setThinkes(true);
         
@@ -203,7 +212,7 @@ private:
         ToolManager::setActiveTool(distance);
     }
 
-    void resetActiveTool(const std::vector<shared_ptr<Widget>>::iterator& tool_ptr) {
+    void resetActiveTool(const std::list<shared_ptr<Widget>>::iterator& tool_ptr) {
         std::static_pointer_cast<TextureButton>(class_active_tool)->setThinkes(false);
         setActiveTool(tool_ptr);
     }
@@ -259,15 +268,16 @@ public:
         WidgetManager::draw(window);
     }
 
-    void mousePressed(sf::Vector2i position) override {
+    bool mousePressed(sf::Vector2i position) override {
 
-        class_widgets.back()->mousePressed(position);
+        auto status = class_widgets.back()->mousePressed(position);
 
         for (auto button_ptr = class_widgets.begin(); button_ptr != class_widgets.end(); ++button_ptr) {
             if ((*button_ptr)->contains(position.x, position.y)) {
                 class_candidate_for_active_tool_ptr = button_ptr;
             }
         }
+        return status;
     }
 
     void mouseReleased(sf::Vector2i position) override {

@@ -1,7 +1,7 @@
 #pragma once
 #include "widgetManager.hpp"
 #include "button.hpp"
-
+#include "main.hpp"
 
 struct ObjInfo
 {
@@ -45,7 +45,7 @@ public:
             position + Vector{0, class_panel_size}, 
             width,
             height,
-            sf::Color{100, 100, 100}
+            sf::Color{86, 83, 92}
         ));
 
         class_info.num_widgets = WidgetManager::arrayOfWidgets().size();
@@ -78,6 +78,38 @@ public:
 };
 
 
+class ObjectCreater : public WindowBody
+{
+public:
+    ObjectCreater(const Vector& position, unsigned width, unsigned height) : WindowBody{position, width, height}
+    {}
+
+
+    bool mousePressed(sf::Vector2i position) override {
+        class_mouse_is_pressed = true;
+        auto is_pressed = false;
+        for (auto widget_it = class_widgets.rbegin(); widget_it != class_widgets.rend(); ++widget_it) {
+            if (*widget_it != nullptr) {
+                is_pressed = (*widget_it)->mousePressed(position);
+                if (is_pressed) {
+                    break;
+                }
+            }
+        }
+        return is_pressed;
+    }
+};
+
+void CreateObjButton::mouseReleased(sf::Vector2i position)
+{
+    if (contains(position.x, position.y) && class_is_pressed) {
+        class_widget_manager_ptr->addWidget(make_shared<ObjectCreater>(
+            Vector{X / 2 - 200, Y / 2 - 200}, 400, 400
+        ));
+    }
+    
+    class_is_pressed = false;
+}
 
 
 class ObjectList : public WindowBody
@@ -90,28 +122,33 @@ private:
     sf::Vector2i class_last_position;
     sf::Vector2i class_delta;
 public:
-    ObjectList(const Vector& position, unsigned width, unsigned height) : WindowBody{position, width, height} {
-        auto text = make_shared<TextButton>(
-            position + Vector{0, class_panel_size + height - 25}, 
+    ObjectList(const Vector& position, unsigned width, unsigned height, WidgetManager* global_manager) : WindowBody{position, width, height} {
+        WindowBody::addWidget(make_shared<CreateObjButton>(
+            position + Vector{0, height - 25 + 15}, 
             width,
             25,
             "New Object",
-            sf::Color{80, 80, 80}
-        );
-
-        text->setTextColor(sf::Color::White);
-        text->moveText(120, 0);
-
-        WindowBody::addWidget(text);
-        WindowBody::addWidget(make_shared<ObjectCutaway>(this));
+            sf::Color{71, 68, 67},
+            global_manager   
+        ));
     }
 
-    void draw(sf::RenderWindow& window) const override {
-        WindowBody::draw(window);
+    bool mousePressed(sf::Vector2i position) override {
+        class_mouse_is_pressed = true;
+        auto is_pressed = false;
+        for (auto widget_it = class_widgets.rbegin(); widget_it != class_widgets.rend(); ++widget_it) {
+            if (*widget_it != nullptr) {
+                is_pressed = (*widget_it)->mousePressed(position);
+                if (is_pressed) {
+                    break;
+                }
+            }
+        }
+        return is_pressed;
     }
 
 };
 
 ObjectCutaway::ObjectCutaway(ObjectList* obj_list) : WindowBody{createBodyInfo(obj_list->info())}, class_obj_list{obj_list} {
-        //WindowBody::addWidget()
+        //addWidget()
     }

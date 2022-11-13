@@ -13,6 +13,8 @@ private:
     sf::Uint32* class_pixels; 
     sf::Texture class_texture;
 
+    bool class_fixate_tool = false;
+
     shared_ptr<ToolManager> class_tool_manager;
 
 public:
@@ -41,28 +43,27 @@ public:
         return class_wnd.getGlobalBounds().contains(x, y);
     }
 
-    virtual void mousePressed(sf::Vector2i coord) {
-        if (!contains(coord.x, coord.y)) return;
-        
+    virtual bool mousePressed(sf::Vector2i coord) {
+        if (!contains(coord.x, coord.y)) return false;
+
+        class_fixate_tool = true;
+
         unsigned y = coord.y - class_wnd.getPosition().y;
         unsigned x = coord.x - class_wnd.getPosition().x; 
-
-        // for (int dx = -1; dx <= 1; ++dx) {
-        //     for (int dy = -1; dy <= 1; ++dy) {
-        //         if (y == 0 && dy < 0) continue;
-        //         class_pixels[clamp((y + dy) * (int)class_wnd.getSize().x + (x + dx), 0U, unsigned(class_wnd.getSize().x * class_wnd.getSize().y - 1))] = 0xff000000;
-        //     }
-        // }
 
         class_tool_manager->activeTool()->mousePressed(class_pixels, class_wnd.getSize().x, class_wnd.getSize().y, x, y);
 
         class_texture.update((sf::Uint8*)class_pixels, class_wnd.getSize().x, class_wnd.getSize().y, 0, 0);
         
         class_wnd.setTexture(&class_texture);
+
+        return true;
     }
 
 
     virtual void mouseReleased(sf::Vector2i coord) {
+        class_fixate_tool = false;
+        
         if (!contains(coord.x, coord.y)) return;
         
         unsigned y = coord.y - class_wnd.getPosition().y;
@@ -77,7 +78,7 @@ public:
 
 
     void pressButton(const sf::Vector2i& coord) override { 
-        if (!contains(coord.x, coord.y)) return;
+        if (!contains(coord.x, coord.y) || !class_fixate_tool) return;
         
         unsigned y = coord.y - class_wnd.getPosition().y;
         unsigned x = coord.x - class_wnd.getPosition().x; 
@@ -127,6 +128,20 @@ public:
             height,
             tool_palete
         ));
+    }
+
+    bool mousePressed(sf::Vector2i position) override {
+        class_mouse_is_pressed = true;
+        auto is_pressed = false;
+        for (auto widget_it = class_widgets.rbegin(); widget_it != class_widgets.rend(); ++widget_it) {
+            if (*widget_it != nullptr) {
+                is_pressed = (*widget_it)->mousePressed(position);
+                if (is_pressed) {
+                    break;
+                }
+            }
+        }
+        return is_pressed;
     }
 };
 
