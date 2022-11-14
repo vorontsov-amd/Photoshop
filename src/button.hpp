@@ -118,6 +118,32 @@ public:
 
 
 
+
+
+class DropdownButton : public WidgetManager
+{
+private:
+    ColorButton   class_background;
+    TextureButton class_down_button; 
+public:
+    DropdownButton(const Vector& position, unsigned width, unsigned height, const sf::Color& color) :
+        class_background{position, width, height, color},
+        class_down_button{position + Vector{width - height, 0}, height, height, "../Textures/down.png"}
+        {}
+
+    void draw(sf::RenderWindow& window) const override {
+        class_background.draw(window);
+        class_down_button.draw(window);
+    }
+
+    void move(int dx, int dy) override {
+        WidgetManager::move(dx, dy);
+        class_background.move(dx, dy);
+        class_down_button.move(dx, dy);
+    }
+};
+
+
 class TextButton : public ColorButton 
 {
 private: 
@@ -195,6 +221,8 @@ public:
 
     virtual void mouseReleased(sf::Vector2i position) override;
 };
+
+
 
 
 using Panel = ColorButton;

@@ -81,8 +81,22 @@ public:
 class ObjectCreater : public WindowBody
 {
 public:
-    ObjectCreater(const Vector& position, unsigned width, unsigned height) : WindowBody{position, width, height}
-    {}
+    ObjectCreater(const Vector& position, unsigned width, unsigned height) : WindowBody{position, width, height} {
+        WindowBody::addWidget(make_shared<TextButton>(
+            position + Vector{20, 30},
+            50,
+            25,
+            "Material: ",
+            sf::Color{0, 0, 0, 0}
+        ));
+
+        WindowBody::addWidget(make_shared<DropdownButton>(
+            position + Vector{120, 30},
+            250,
+            25,
+            sf::Color{50, 50, 50}
+        ));
+    }
 
 
     bool mousePressed(sf::Vector2i position) override {
