@@ -81,10 +81,12 @@ public:
         return false;
     }
 
-    void mouseReleased(sf::Vector2i position) override {
+    bool mouseReleased(sf::Vector2i position) override {
         if (class_candidate_for_active_color->contains(position)) {
             setActiveColor(class_candidate_for_active_color);
+            return true;
         }
+        return false;
     }
 
     unsigned color() const {
@@ -280,14 +282,15 @@ public:
         return status;
     }
 
-    void mouseReleased(sf::Vector2i position) override {
+    bool mouseReleased(sf::Vector2i position) override {
         
-        class_widgets.back()->mouseReleased(position);
+        auto status = class_widgets.back()->mouseReleased(position);
 
         if ((*class_candidate_for_active_tool_ptr)->contains(position)) {
             if (std::dynamic_pointer_cast<TextureButton>(*class_candidate_for_active_tool_ptr) != nullptr) {
                 resetActiveTool(class_candidate_for_active_tool_ptr);
             }
         }
+        return status;
     }
 };

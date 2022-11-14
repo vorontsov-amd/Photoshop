@@ -61,10 +61,10 @@ public:
     }
 
 
-    virtual void mouseReleased(sf::Vector2i coord) {
+    virtual bool mouseReleased(sf::Vector2i coord) {
         class_fixate_tool = false;
         
-        if (!contains(coord.x, coord.y)) return;
+        if (!contains(coord.x, coord.y)) return false;
         
         unsigned y = coord.y - class_wnd.getPosition().y;
         unsigned x = coord.x - class_wnd.getPosition().x; 
@@ -74,6 +74,8 @@ public:
         class_texture.update((sf::Uint8*)class_pixels, class_wnd.getSize().x, class_wnd.getSize().y, 0, 0);
         
         class_wnd.setTexture(&class_texture);
+
+        return true;
     }
 
 

@@ -41,9 +41,18 @@ public:
         return is_pressed;
     }
 
-    void mouseReleased(sf::Vector2i position) override {
+    bool mouseReleased(sf::Vector2i position) override {
         class_mouse_is_pressed = false;
-        for (const auto& widget : class_widgets) if (widget != nullptr) widget->mouseReleased(position);
+        auto is_pressed = false;
+        for (auto widget_it = class_widgets.rbegin(); widget_it != class_widgets.rend(); ++widget_it) {
+            if (*widget_it != nullptr) {
+                is_pressed = (*widget_it)->mouseReleased(position);
+                if (is_pressed) {
+                    break;
+                }
+            }
+        }
+        return is_pressed;
     }
 
     void pressButton(const sf::Vector2i& coord) override {

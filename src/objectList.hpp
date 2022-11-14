@@ -2,6 +2,7 @@
 #include "widgetManager.hpp"
 #include "button.hpp"
 #include "main.hpp"
+#include "console.hpp"
 
 struct ObjInfo
 {
@@ -82,21 +83,105 @@ class ObjectCreater : public WindowBody
 {
 public:
     ObjectCreater(const Vector& position, unsigned width, unsigned height) : WindowBody{position, width, height} {
-        WindowBody::addWidget(make_shared<TextButton>(
-            position + Vector{20, 30},
-            50,
-            25,
+        
+        auto text = make_shared<TextButton>(
+            position + Vector{15, 30},
+            0,
+            20,
             "Material: ",
             sf::Color{0, 0, 0, 0}
-        ));
+        );
+        text->setTextColor(sf::Color::White);
+        WindowBody::addWidget(text);
 
-        WindowBody::addWidget(make_shared<DropdownButton>(
-            position + Vector{120, 30},
-            250,
-            25,
+        auto material_list = make_shared<DropdownButton>(
+            position + Vector{110, 25},
+            280,
+            30,
             sf::Color{50, 50, 50}
-        ));
+        );
+
+        auto lambertian_button = make_shared<TextButton>(
+            position + Vector{110, 25},
+            280,
+            30,
+            "lambertian",
+            sf::Color{50, 50, 50}
+        );
+        lambertian_button->setTextColor(sf::Color::White);
+        lambertian_button->setCharacterSize(20*0.8);
+        lambertian_button->moveText(5, 5);
+        material_list->addWidget(lambertian_button);
+
+        auto metall_button = make_shared<TextButton>(
+            position + Vector{110, 55},
+            280,
+            30,
+            "metall",
+            sf::Color{50, 50, 50}
+        );
+        metall_button->setTextColor(sf::Color::White);
+        metall_button->setCharacterSize(20*0.8);
+        metall_button->moveText(5, 5);
+        material_list->addWidget(metall_button);
+
+        auto dielectric_button = make_shared<TextButton>(
+            position + Vector{110, 85},
+            280,
+            30,
+            "dielectric",
+            sf::Color{50, 50, 50}
+        );
+        dielectric_button->setTextColor(sf::Color::White);
+        dielectric_button->setCharacterSize(20*0.8);
+        dielectric_button->moveText(5, 5);
+        material_list->addWidget(dielectric_button);
+
+        auto x_text = make_shared<TextButton>(
+            position + Vector{width/2 - 0.5*20*0.8 - 130, 70},
+            0,
+            20,
+            "x",
+            sf::Color{0, 0, 0, 0}
+        );
+        x_text->setTextColor(sf::Color::White);
+        WindowBody::addWidget(x_text);
+
+        auto y_text = make_shared<TextButton>(
+            position + Vector{width/2 - 0.5*20*0.8, 70},
+            0,
+            20,
+            "y",
+            sf::Color{0, 0, 0, 0}
+        );
+        y_text->setTextColor(sf::Color::White);
+        WindowBody::addWidget(y_text);
+
+        auto z_text = make_shared<TextButton>(
+            position + Vector{width/2 - 0.5*20*0.8 + 130, 70},
+            0,
+            20,
+            "z",
+            sf::Color{0, 0, 0, 0}
+        );
+        z_text->setTextColor(sf::Color::White);
+        WindowBody::addWidget(z_text);
+
+        //auto console = make_shared<Console>(position + Vector{150, 150}, 300, 40, sf::Color{100, 100, 100});
+
+        //WindowBody::addWidget(console);
+
+        WindowBody::addWidget(material_list);
+
     }
+
+    // shared_ptr<Console> consoles() {
+    //     auto it = class_widgets.end();
+    //     --it;
+    //     --it;
+    //     assert(typeid(**it) == typeid(Console));
+    //     return std::static_pointer_cast<Console>(*it);
+    // }
 
 
     bool mousePressed(sf::Vector2i position) override {
@@ -114,15 +199,17 @@ public:
     }
 };
 
-void CreateObjButton::mouseReleased(sf::Vector2i position)
+bool CreateObjButton::mouseReleased(sf::Vector2i position)
 {
     if (contains(position.x, position.y) && class_is_pressed) {
         class_widget_manager_ptr->addWidget(make_shared<ObjectCreater>(
             Vector{X / 2 - 200, Y / 2 - 200}, 400, 400
         ));
+        return true;
     }
     
     class_is_pressed = false;
+    return false;
 }
 
 

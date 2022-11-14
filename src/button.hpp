@@ -19,6 +19,10 @@ public:
         class_button.setSize(sf::Vector2f{width, height});
     }
 
+    virtual sf::Vector2f getSize() {
+        return class_button.getSize();
+    }
+
     virtual void draw(sf::RenderWindow& window) const override {
         window.draw(class_button);
     }
@@ -31,13 +35,14 @@ public:
         if (contains(position.x, position.y)) {
             class_is_pressed = true;
             return true;
-            puts("button pressed");
         }      
         return false;
     }
 
-    virtual void mouseReleased(sf::Vector2i position) override {
+    virtual bool mouseReleased(sf::Vector2i position) override {
         class_is_pressed = false;
+        if (contains(position.x, position.y)) return true;
+        else return false;
     }
 
     virtual void pressButton(const sf::Vector2i& coord) override {
@@ -106,6 +111,7 @@ public:
         return false;
     }
 
+
     virtual void pressButton(const sf::Vector2i& position) override {
         if (class_is_pressed) {
             class_delta = position - class_last_position;
@@ -118,32 +124,6 @@ public:
 
 
 
-
-
-class DropdownButton : public WidgetManager
-{
-private:
-    ColorButton   class_background;
-    TextureButton class_down_button; 
-public:
-    DropdownButton(const Vector& position, unsigned width, unsigned height, const sf::Color& color) :
-        class_background{position, width, height, color},
-        class_down_button{position + Vector{width - height, 0}, height, height, "../Textures/down.png"}
-        {}
-
-    void draw(sf::RenderWindow& window) const override {
-        class_background.draw(window);
-        class_down_button.draw(window);
-    }
-
-    void move(int dx, int dy) override {
-        WidgetManager::move(dx, dy);
-        class_background.move(dx, dy);
-        class_down_button.move(dx, dy);
-    }
-};
-
-
 class TextButton : public ColorButton 
 {
 private: 
@@ -152,7 +132,7 @@ private:
 public:
     TextButton(const Vector& position, unsigned width, unsigned height, const std::string& str, const sf::Color& background_color) :
         ColorButton{position, width, height, background_color} {
-            class_font.loadFromFile("../font/Open_Sans/OpenSans.ttf");
+            class_font.loadFromFile("../font/jetbrainsmono/JetBrainsMono-Regular.ttf");
             class_text.setFont(class_font);
             class_text.setString(str);
             class_text.setCharacterSize(height * 0.8);
@@ -164,6 +144,14 @@ public:
         class_text.setFillColor(color);
     }
 
+    void setCharacterSize(unsigned size) {
+        class_text.setCharacterSize(size);
+    }
+
+    unsigned getCharacterSize() {
+        return class_text.getCharacterSize();
+    }
+
     void draw(sf::RenderWindow& window) const override {
         ColorButton::draw(window);
         window.draw(class_text);
@@ -171,6 +159,14 @@ public:
 
     void moveText(int dx, int dy) {
         class_text.setPosition(class_text.getPosition().x + dx, class_text.getPosition().y + dy);
+    }
+
+    void setText(const std::string& str) {
+        class_text.setString(str);
+    }
+
+    std::string getText() const {
+        return class_text.getString();
     }
 
     void move(int dx, int dy) override {
@@ -219,9 +215,70 @@ public:
             moveText(120, 0);    
         }
 
-    virtual void mouseReleased(sf::Vector2i position) override;
+    virtual bool mouseReleased(sf::Vector2i position) override;
 };
 
+
+
+
+class DropdownButton : public WidgetManager
+{
+private:
+    TextButton    class_background;
+    TextureButton class_down_button; 
+
+    bool class_is_pressed = false;
+public:
+    DropdownButton(const Vector& position, unsigned width, unsigned height, const sf::Color& color) :
+        class_background{position, width, height, "",color},
+        class_down_button{position + Vector{width - height, 0}, height, height, "../Textures/down.png"} {
+            class_background.setTextColor(sf::Color::White);
+            class_background.setCharacterSize(20*0.8);
+            class_background.moveText(5, 5);
+        }
+
+    void draw(sf::RenderWindow& window) const override {
+        class_background.draw(window);
+        class_down_button.draw(window);
+        if (class_is_pressed) {
+            WidgetManager::draw(window);
+        }
+    }
+
+    void move(int dx, int dy) override {
+        WidgetManager::move(dx, dy);
+        class_background.move(dx, dy);
+        class_down_button.move(dx, dy);
+    }
+
+    bool contains(unsigned x, unsigned y) const override {
+        return class_background.contains(x, y) or
+            class_down_button.contains(x, y);
+    }
+
+    bool mousePressed(sf::Vector2i position) override {  
+        if (class_is_pressed) {
+            for (auto& button : class_widgets) {                    
+                if (button == nullptr) continue;
+                if (button->contains(position.x, position.y)) {
+                    auto str = std::static_pointer_cast<TextButton>(button)->getText();
+                    class_background.setText(str);
+                    class_is_pressed = false;
+                    return true;
+                }
+            }   
+            class_is_pressed = false;
+            return false;
+        }
+        else if (contains(position.x, position.y)) {
+            class_is_pressed = true;
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+};
 
 
 

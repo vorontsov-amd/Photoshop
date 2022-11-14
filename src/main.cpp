@@ -8,7 +8,7 @@
 #include "settingsPanel.hpp"
 #include "objectList.hpp"
 #include "main.hpp"
-
+#include "console.hpp"
 
 int main()
 {   
@@ -19,7 +19,10 @@ int main()
     auto tool_pallete = make_shared<ToolPallete>(Vector{20, 80}, 1600);
     manager.addWidget(tool_pallete);
     manager.addWidget(make_shared<DrawingWindow>(Vector{100, 100}, 960, 640, tool_pallete));
-    manager.addWidget(make_shared<ObjectList>(Vector{1200, 100}, 350, 640, &manager));
+    auto object_list = make_shared<ObjectList>(Vector{1200, 100}, 350, 640, &manager);
+    manager.addWidget(object_list);
+
+    //auto cns =
 
     while (window.isOpen())
     {
@@ -39,6 +42,9 @@ int main()
                 break;
             case sf::Event::MouseButtonReleased:
                 manager.mouseReleased(position);
+                break;
+            case sf::Event::KeyPressed:
+                //cns.scanOffKeyboard(event.key.code);
             default:
                 break;
             }
@@ -47,6 +53,8 @@ int main()
         manager.pressButton(position);
 
         manager.draw(window);
+        //cns.draw(window);
         window.display();
+
     }
 }
