@@ -22,8 +22,6 @@ int main()
     auto object_list = make_shared<ObjectList>(Vector{1200, 100}, 350, 640, &manager);
     manager.addWidget(object_list);
 
-    //auto cns =
-
     while (window.isOpen())
     {
         window.clear(sf::Color(46, 43, 52));
@@ -44,7 +42,7 @@ int main()
                 manager.mouseReleased(position);
                 break;
             case sf::Event::KeyPressed:
-                //cns.scanOffKeyboard(event.key.code);
+                manager.scanOffKeyboard(event.key.code);
             default:
                 break;
             }
@@ -53,7 +51,6 @@ int main()
         manager.pressButton(position);
 
         manager.draw(window);
-        //cns.draw(window);
         window.display();
 
     }

@@ -55,6 +55,13 @@ public:
         return is_pressed;
     }
 
+
+    void scanOffKeyboard(sf::Keyboard::Key key_code) override {        
+        for (auto& cns : class_widgets) {
+            cns->scanOffKeyboard(key_code);
+        }
+    }
+
     void pressButton(const sf::Vector2i& coord) override {
         if (class_mouse_is_pressed)
             for (const auto& widget : class_widgets) if (widget != nullptr) widget->pressButton(coord);

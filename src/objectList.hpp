@@ -81,6 +81,8 @@ public:
 
 class ObjectCreater : public WindowBody
 {
+private:
+    std::vector<shared_ptr<Console>> class_consoles;
 public:
     ObjectCreater(const Vector& position, unsigned width, unsigned height) : WindowBody{position, width, height} {
         
@@ -138,7 +140,7 @@ public:
         material_list->addWidget(dielectric_button);
 
         auto x_text = make_shared<TextButton>(
-            position + Vector{width/2 - 0.5*20*0.8 - 130, 70},
+            position + Vector{width/2 - 0.5*20*0.8 - 125, 70},
             0,
             20,
             "x",
@@ -147,8 +149,17 @@ public:
         x_text->setTextColor(sf::Color::White);
         WindowBody::addWidget(x_text);
 
+        auto console_x = make_shared<Console>(
+            position + Vector{width/2 - 0.5*20*0.8 - 125 - 45, 120},
+            100,
+            20,
+            sf::Color{50, 50, 50},
+            std::bind(std::mem_fn(&ObjectCreater::disable_consoles), this)
+        );
+
+
         auto y_text = make_shared<TextButton>(
-            position + Vector{width/2 - 0.5*20*0.8, 70},
+            position + Vector{width/2 - 0.5*20*0.8 + 5, 70},
             0,
             20,
             "y",
@@ -157,8 +168,17 @@ public:
         y_text->setTextColor(sf::Color::White);
         WindowBody::addWidget(y_text);
 
+
+        auto console_y = make_shared<Console>(
+            position + Vector{width/2 - 0.5*20*0.8 - 45 + 5, 120},
+            100,
+            20,
+            sf::Color{50, 50, 50},
+            std::bind(std::mem_fn(&ObjectCreater::disable_consoles), this)
+        );
+
         auto z_text = make_shared<TextButton>(
-            position + Vector{width/2 - 0.5*20*0.8 + 130, 70},
+            position + Vector{width/2 - 0.5*20*0.8 + 135, 70},
             0,
             20,
             "z",
@@ -167,14 +187,31 @@ public:
         z_text->setTextColor(sf::Color::White);
         WindowBody::addWidget(z_text);
 
-        //auto console = make_shared<Console>(position + Vector{150, 150}, 300, 40, sf::Color{100, 100, 100});
+        auto console_z = make_shared<Console>(
+            position + Vector{width/2 - 0.5*20*0.8 + 135 - 45, 120},
+            100,
+            20,
+            sf::Color{50, 50, 50},
+            std::bind(std::mem_fn(&ObjectCreater::disable_consoles), this)
+        );
 
-        //WindowBody::addWidget(console);
+        class_consoles.push_back(console_x);
+        class_consoles.push_back(console_y);
+        class_consoles.push_back(console_z);
+        WindowBody::addWidget(console_x);
+        WindowBody::addWidget(console_y);
+        WindowBody::addWidget(console_z);
 
         WindowBody::addWidget(material_list);
 
     }
 
+private:
+    void disable_consoles() {
+        for (auto& cns: class_consoles) {
+            cns->is_active_console = false;
+        }
+    }
     // shared_ptr<Console> consoles() {
     //     auto it = class_widgets.end();
     //     --it;
@@ -182,7 +219,7 @@ public:
     //     assert(typeid(**it) == typeid(Console));
     //     return std::static_pointer_cast<Console>(*it);
     // }
-
+public:
 
     bool mousePressed(sf::Vector2i position) override {
         class_mouse_is_pressed = true;
@@ -199,7 +236,7 @@ public:
     }
 };
 
-bool CreateObjButton::mouseReleased(sf::Vector2i position)
+inline bool CreateObjButton::mouseReleased(sf::Vector2i position)
 {
     if (contains(position.x, position.y) && class_is_pressed) {
         class_widget_manager_ptr->addWidget(make_shared<ObjectCreater>(
