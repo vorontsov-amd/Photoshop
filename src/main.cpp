@@ -9,10 +9,18 @@
 #include "objectList.hpp"
 #include "main.hpp"
 #include "console.hpp"
+#include "raytracer.hpp"
+
+
+using Vector = vec3;
+using Color = vec3;
+
 
 int main()
 {   
     sf::RenderWindow window(sf::VideoMode(X, Y), "nZemax");
+
+    RayTracer<Y,X> trc;
 
     WidgetManager manager;
     manager.addWidget(make_shared<SettingsPanel>(1600));

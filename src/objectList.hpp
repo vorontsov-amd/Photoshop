@@ -83,6 +83,9 @@ class ObjectCreater : public WindowBody
 {
 private:
     std::vector<shared_ptr<Console>> class_consoles;
+
+    enum { LAMBERTIAN, METALL, DIELECTRIC, NO_MATERIAL }; 
+    int class_material = NO_MATERIAL;
 public:
     ObjectCreater(const Vector& position, unsigned width, unsigned height) : WindowBody{position, width, height} {
         

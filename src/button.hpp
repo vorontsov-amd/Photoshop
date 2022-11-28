@@ -278,6 +278,10 @@ public:
             return false;
         }
     }
+
+    std::string activeButton() const {
+        return class_background.getText();
+    }
 };
 
 
