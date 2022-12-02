@@ -9,7 +9,7 @@
 #include "raytrace/camera.hpp"
 #include "raytrace/material.hpp"
 #include "button.hpp"
-
+#include <algorithm>
 
 using Vector = vec3;
 using Color = vec3;
@@ -57,15 +57,14 @@ color ray_color(const ray& r, const hittable& world, int depth) {
 
 
 
-
 //template <unsigned IMAGE_HEIGHT, unsigned IMAGE_WIDTH>
 class RayTracer : public TextButton
 {
 private:
-    #define IMAGE_HEIGHT  900
-    #define IMAGE_WIDTH  1600
+    #define IMAGE_HEIGHT  640
+    #define IMAGE_WIDTH  960
     
-    int samples_per_pixel = 20;
+    int samples_per_pixel = 50;
     int max_depth = 20;
     double aspect_ratio = double(IMAGE_WIDTH) / IMAGE_HEIGHT;
 
@@ -74,8 +73,10 @@ private:
         
     sf::Uint32 img[IMAGE_HEIGHT][IMAGE_WIDTH] {};
     sf::Uint32* img_ptr = (sf::Uint32*)img;
+
+    shared_ptr<DrawingWindow> window_;
 public:
-    RayTracer() : TextButton{Vector{400, 400}, 50, 50, "R", sf::Color::Blue}
+    RayTracer(shared_ptr<DrawingWindow> window) : window_{window}, TextButton{Vector{400, 400}, 50, 50, "R", sf::Color::Blue}
     {
         point3 lookfrom(-2,2,1);
         point3 lookat(0,0,-1);
@@ -119,8 +120,10 @@ public:
                 }
             } 
 
+            window_->updateTexture(img_ptr);
             return true;
         }
         return false;
     }
 };
+

@@ -97,7 +97,16 @@ public:
         class_texture.update((sf::Uint8*)class_pixels, class_wnd.getSize().x, class_wnd.getSize().y, 0, 0);
         
         class_wnd.setTexture(&class_texture);    
+
+
     }
+
+    void updateTexture(sf::Uint32* texture) {
+        std::copy(class_pixels, class_pixels + static_cast<unsigned>(class_wnd.getSize().x * class_wnd.getSize().y), texture);
+        class_texture.update((sf::Uint8*)class_pixels, class_wnd.getSize().x, class_wnd.getSize().y, 0, 0);
+        class_wnd.setTexture(&class_texture);    
+    }
+
 };
 
 
@@ -144,6 +153,10 @@ public:
             }
         }
         return is_pressed;
+    }
+
+    void updateTexture(sf::Uint32* texture) {
+        return std::static_pointer_cast<CanvasWindow>(class_widgets.back())->updateTexture(texture);
     }
 };
 

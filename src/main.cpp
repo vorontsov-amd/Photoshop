@@ -22,10 +22,11 @@ int main()
     manager.addWidget(make_shared<SettingsPanel>(1600));
     auto tool_pallete = make_shared<ToolPallete>(Vector{20, 80}, 1600);
     manager.addWidget(tool_pallete);
-    manager.addWidget(make_shared<DrawingWindow>(Vector{100, 100}, 960, 640, tool_pallete));
+    auto canvas = make_shared<DrawingWindow>(Vector{100, 100}, 960, 640, tool_pallete);
+    manager.addWidget(canvas);
     auto object_list = make_shared<ObjectList>(Vector{1200, 100}, 350, 640, &manager);
     manager.addWidget(object_list);
-    manager.addWidget(make_shared<RayTracer>());
+    manager.addWidget(make_shared<RayTracer>(canvas));
 
     while (window.isOpen())
     {
