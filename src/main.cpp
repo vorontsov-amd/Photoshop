@@ -12,15 +12,11 @@
 #include "raytracer.hpp"
 
 
-using Vector = vec3;
-using Color = vec3;
-
 
 int main()
 {   
     sf::RenderWindow window(sf::VideoMode(X, Y), "nZemax");
 
-    RayTracer<Y,X> trc;
 
     WidgetManager manager;
     manager.addWidget(make_shared<SettingsPanel>(1600));
@@ -29,6 +25,7 @@ int main()
     manager.addWidget(make_shared<DrawingWindow>(Vector{100, 100}, 960, 640, tool_pallete));
     auto object_list = make_shared<ObjectList>(Vector{1200, 100}, 350, 640, &manager);
     manager.addWidget(object_list);
+    manager.addWidget(make_shared<RayTracer>());
 
     while (window.isOpen())
     {

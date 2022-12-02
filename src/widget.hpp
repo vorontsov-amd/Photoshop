@@ -14,7 +14,8 @@ public:
     virtual bool mousePressed(sf::Vector2i position) { return false; }
     virtual bool mouseReleased(sf::Vector2i position) { return false; }
     virtual void scanOffKeyboard(sf::Keyboard::Key key_code) {}
-
+    virtual Vector position() const { return Vector{}; }
+    virtual Vector size() const { return Vector{}; }
 };
 
 inline Widget::~Widget() {}

@@ -57,6 +57,16 @@ public:
         class_button.setOutlineColor(sf::Color::Yellow);
     }
 
+    Vector position() const override {
+        auto vec = class_button.getPosition();
+        return Vector{vec.x, vec.y};
+    }
+
+    Vector size() const override {
+        auto vec = class_button.getSize();
+        return Vector{vec.x, vec.y};
+    }
+
     ~Button() = 0;
 };
 
@@ -121,6 +131,22 @@ public:
         }  
     } 
 };
+
+
+
+
+class NoMovePanel : public ColorButton
+{
+private:
+    WidgetManager* class_parrent_ptr;
+    sf::Vector2i class_last_position;
+    sf::Vector2i class_delta;
+public:
+    NoMovePanel(const Vector& position, unsigned width, unsigned height, const sf::Color& color, WidgetManager* parrent_ptr) :
+        ColorButton{position, width, height, color}, class_parrent_ptr{parrent_ptr}
+        {}
+};
+
 
 
 

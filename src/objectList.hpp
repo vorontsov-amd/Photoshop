@@ -21,9 +21,11 @@ private:
 
     ObjInfo class_info;
 
+    std::list<std::shared_ptr<Widget>>::reverse_iterator it;
+
 public:
     WindowBody(const ObjInfo& info) : WindowBody(info.position, info.width, info.height) {}
-    WindowBody(const Vector& position, unsigned width, unsigned height) :
+    WindowBody(const Vector& position, unsigned width, unsigned height, sf::Color color = sf::Color{86, 83, 92}) :
         class_info{position, width, height} {
 
         double koef_button_size = 0.7;
@@ -46,7 +48,55 @@ public:
             position + Vector{0, class_panel_size}, 
             width,
             height,
-            sf::Color{86, 83, 92}
+            color
+        ));
+
+
+        class_info.num_widgets = WidgetManager::arrayOfWidgets().size();
+    }
+
+    ObjInfo info() { return class_info; }
+
+    Vector position() const override {
+        return class_info.position + Vector{0, class_panel_size}; 
+    }
+};
+
+
+class NoMoveWindowBody : public WidgetManager
+{
+private:
+    unsigned class_panel_size = 15;
+    sf::Color class_panel_color = sf::Color{190, 190, 190};
+
+    ObjInfo class_info;
+
+public:
+    NoMoveWindowBody(const ObjInfo& info) : NoMoveWindowBody(info.position, info.width, info.height) {}
+    NoMoveWindowBody(const Vector& position, unsigned width, unsigned height, sf::Color color = sf::Color{86, 83, 92}) :
+        class_info{position, width, height} {
+
+        double koef_button_size = 0.7;
+        
+        WidgetManager::addWidget(make_shared<NoMovePanel>(
+            position, 
+            width,
+            class_panel_size,
+            class_panel_color,
+            this
+        ));
+
+        WidgetManager::addWidget(make_shared<TextureButton>(
+            position + Vector{width - class_panel_size * 0.5 * (1 + koef_button_size), class_panel_size * 0.5 * (1 - koef_button_size)},
+            class_panel_size * koef_button_size,
+            class_panel_size * koef_button_size,
+            "../Textures/cross.png"
+        ));
+        WidgetManager::addWidget(make_shared<Panel>(
+            position + Vector{0, class_panel_size}, 
+            width,
+            height,
+            color
         ));
 
         class_info.num_widgets = WidgetManager::arrayOfWidgets().size();
@@ -79,7 +129,7 @@ public:
 };
 
 
-class ObjectCreater : public WindowBody
+class ObjectCreater : public NoMoveWindowBody
 {
 private:
     std::vector<shared_ptr<Console>> class_consoles;
@@ -87,7 +137,7 @@ private:
     enum { LAMBERTIAN, METALL, DIELECTRIC, NO_MATERIAL }; 
     int class_material = NO_MATERIAL;
 public:
-    ObjectCreater(const Vector& position, unsigned width, unsigned height) : WindowBody{position, width, height} {
+    ObjectCreater(const Vector& position, unsigned width, unsigned height, sf::Color color) : NoMoveWindowBody{position, width, height, color} {
         
         auto text = make_shared<TextButton>(
             position + Vector{15, 30},
@@ -97,11 +147,13 @@ public:
             sf::Color{0, 0, 0, 0}
         );
         text->setTextColor(sf::Color::White);
-        WindowBody::addWidget(text);
+        NoMoveWindowBody::addWidget(text);
+
+        unsigned drodown_button_sz = width - 120;
 
         auto material_list = make_shared<DropdownButton>(
             position + Vector{110, 25},
-            280,
+            drodown_button_sz,
             30,
             sf::Color{50, 50, 50}
         );
@@ -143,18 +195,21 @@ public:
         material_list->addWidget(dielectric_button);
 
         auto x_text = make_shared<TextButton>(
-            position + Vector{width/2 - 0.5*20*0.8 - 125, 70},
+            position + Vector{width/6 - 0.5*20*0.8, 70},
             0,
             20,
             "x",
             sf::Color{0, 0, 0, 0}
         );
         x_text->setTextColor(sf::Color::White);
-        WindowBody::addWidget(x_text);
+        NoMoveWindowBody::addWidget(x_text);
+
+
+        unsigned cns_sz = (width-40)/3;
 
         auto console_x = make_shared<Console>(
-            position + Vector{width/2 - 0.5*20*0.8 - 125 - 45, 120},
-            100,
+            position + Vector{10, 120},
+            cns_sz,
             20,
             sf::Color{50, 50, 50},
             std::bind(std::mem_fn(&ObjectCreater::disable_consoles), this)
@@ -162,37 +217,37 @@ public:
 
 
         auto y_text = make_shared<TextButton>(
-            position + Vector{width/2 - 0.5*20*0.8 + 5, 70},
+            position + Vector{width/2 - 0.5*20*0.8, 70},
             0,
             20,
             "y",
             sf::Color{0, 0, 0, 0}
         );
         y_text->setTextColor(sf::Color::White);
-        WindowBody::addWidget(y_text);
+        NoMoveWindowBody::addWidget(y_text);
 
 
         auto console_y = make_shared<Console>(
-            position + Vector{width/2 - 0.5*20*0.8 - 45 + 5, 120},
-            100,
+            position + Vector{cns_sz + 20, 120},
+            cns_sz,
             20,
             sf::Color{50, 50, 50},
             std::bind(std::mem_fn(&ObjectCreater::disable_consoles), this)
         );
 
         auto z_text = make_shared<TextButton>(
-            position + Vector{width/2 - 0.5*20*0.8 + 135, 70},
+            position + Vector{5*width/6 - 0.5*20*0.8, 70},
             0,
             20,
             "z",
             sf::Color{0, 0, 0, 0}
         );
         z_text->setTextColor(sf::Color::White);
-        WindowBody::addWidget(z_text);
+        NoMoveWindowBody::addWidget(z_text);
 
         auto console_z = make_shared<Console>(
-            position + Vector{width/2 - 0.5*20*0.8 + 135 - 45, 120},
-            100,
+            position + Vector{2 * cns_sz + 30, 120},
+            cns_sz,
             20,
             sf::Color{50, 50, 50},
             std::bind(std::mem_fn(&ObjectCreater::disable_consoles), this)
@@ -201,11 +256,11 @@ public:
         class_consoles.push_back(console_x);
         class_consoles.push_back(console_y);
         class_consoles.push_back(console_z);
-        WindowBody::addWidget(console_x);
-        WindowBody::addWidget(console_y);
-        WindowBody::addWidget(console_z);
+        NoMoveWindowBody::addWidget(console_x);
+        NoMoveWindowBody::addWidget(console_y);
+        NoMoveWindowBody::addWidget(console_z);
 
-        WindowBody::addWidget(material_list);
+        NoMoveWindowBody::addWidget(material_list);
 
     }
 
@@ -242,8 +297,13 @@ public:
 inline bool CreateObjButton::mouseReleased(sf::Vector2i position)
 {
     if (contains(position.x, position.y) && class_is_pressed) {
+        Vector new_position = class_widget_manager_ptr->position();
+        new_position += Vector{10, 10};
+
+        auto size = Button::size().x() - 20;
+
         class_widget_manager_ptr->addWidget(make_shared<ObjectCreater>(
-            Vector{X / 2 - 200, Y / 2 - 200}, 400, 400
+            new_position, size, size, sf::Color{76, 73, 82}
         ));
         return true;
     }
@@ -269,8 +329,8 @@ public:
             width,
             25,
             "New Object",
-            sf::Color{71, 68, 67},
-            global_manager   
+            sf::Color{76, 73, 82},
+            this   
         ));
     }
 

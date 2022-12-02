@@ -27,7 +27,7 @@ public:
         WidgetManager::draw(window);
     }
 
-    const Vector& position() const {
+    Vector position() const override {
         return class_position;
     }
 };
